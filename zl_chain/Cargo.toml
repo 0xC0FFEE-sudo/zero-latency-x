@@ -1,0 +1,15 @@
+[package]
+name = "zl_chain"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+warp = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+mmap = "0.1"
+serde_json = "1.0"
+
+[[bin]]
+name = "zl_chain"
+path = "src/rpc.rs"

@@ -1,0 +1,17 @@
+# Network and 5G edge configuration
+cex_endpoints:
+  - name: Binance
+    ws: wss://stream.binance.com:9443/ws
+  - name: OKX
+    ws: wss://real.okx.com:8443/ws
+
+5g:
+  apn: "private"
+  band: "mmWave"
+  latency_ms: 1-2
+
+links:
+  - from: "DC1"
+    to: "DC2"
+    type: "laser"
+    redundancy: 2

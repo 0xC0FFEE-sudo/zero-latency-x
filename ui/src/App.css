@@ -1,0 +1,6 @@
+/* App CSS stub to satisfy Vite build */
+canvas {
+  background-color: #000;
+  display: block;
+  margin: 0 auto;
+}
