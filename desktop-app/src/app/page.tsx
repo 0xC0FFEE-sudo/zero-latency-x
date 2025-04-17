@@ -1,103 +1,112 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React, { useEffect, useState } from 'react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectTrigger, SelectContent, SelectValue, SelectItem } from '@/components/ui/select'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Line } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
+
+type SentimentTick = { symbol: string; ts: number; sentiment: number }
+type Order = { symbol: string; side: string; qty: number }
+
+export default function Dashboard() {
+  const [sentiments, setSentiments] = useState<SentimentTick[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
+  const [symbol, setSymbol] = useState('')
+  const [qty, setQty] = useState('')
+  const [side, setSide] = useState<'BUY' | 'SELL'>('BUY')
+
+  useEffect(() => {
+    const es = new EventSource('/events')
+    es.addEventListener('sentiment', (e: MessageEvent) => {
+      const data: SentimentTick = JSON.parse(e.data)
+      setSentiments(prev => [...prev, data])
+    })
+    es.addEventListener('order', (e: MessageEvent) => {
+      const data: Order = JSON.parse(e.data)
+      setOrders(prev => [data, ...prev])
+    })
+    return () => es.close()
+  }, [])
+
+  const chartData = {
+    labels: sentiments.map(s => new Date(s.ts * 1000).toLocaleTimeString()),
+    datasets: [
+      {
+        label: 'Sentiment',
+        data: sentiments.map(s => s.sentiment),
+        borderColor: 'rgba(75,192,192,1)',
+        fill: false,
+      },
+    ],
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="p-8 space-y-8">
+      <Tabs defaultValue="sentiment">
+        <TabsList>
+          <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="trade">Trade</TabsTrigger>
+        </TabsList>
+        <TabsContent value="sentiment">
+          <Card>
+            <Line data={chartData} />
+          </Card>
+        </TabsContent>
+        <TabsContent value="orders">
+          <Card className="space-y-2">
+            {orders.map((o, i) => (
+              <div key={i} className="flex justify-between">
+                <span>{o.symbol}</span>
+                <span>{o.side}</span>
+                <span>{o.qty}</span>
+              </div>
+            ))}
+          </Card>
+        </TabsContent>
+        <TabsContent value="trade">
+          <form onSubmit={async e => {
+            e.preventDefault();
+            await fetch('/api/trade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ symbol, qty: parseFloat(qty), side }) });
+          }} className="flex space-x-2">
+            <Input placeholder="Symbol" value={symbol} onChange={e => setSymbol(e.target.value)} />
+            <Input type="number" placeholder="Qty" value={qty} onChange={e => setQty(e.target.value)} />
+            <Select value={side} onValueChange={v => setSide(v as 'BUY' | 'SELL')}>
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Side" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="BUY">BUY</SelectItem>
+                <SelectItem value="SELL">SELL</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button type="submit">Submit</Button>
+          </form>
+        </TabsContent>
+      </Tabs>
     </div>
-  );
+  )
 }
