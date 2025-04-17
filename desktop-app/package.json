@@ -6,10 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "electron:build": "electron-builder build",
+    "electron:dev": "electron ."
   },
   "dependencies": {
     "@shadcn/ui": "^0.0.4",
+    "electron": "^22.0.0",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -19,7 +22,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron-builder": "^23.6.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "build": {
+    "appId": "desktop-app",
+    "electronVersion": "22.0.0"
   }
 }
